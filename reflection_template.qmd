@@ -179,7 +179,12 @@ crime_scene_report2 <- crime_scene_report |>
 
 ```{r}
 #| label: wd-4-numeric
-
+# lab 3 q 6
+  teacher_evals_clean |>
+  summarize(
+    unique_instructors = n_distinct(teacher_id),
+    unique_courses = n_distinct(course_id)
+  )
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
@@ -429,8 +434,19 @@ teacher_evals_clean <- Teacher |>
 
 ```{r}
 #| label: r-2-3
-SLICE MIN SLICE MAX???
-summarize?
+# lab 4 q7
+reg_mod1 <- lm(mc_infant ~ mhi_2018, data = ca_childcare)
+
+ggplot(ca_childcare, aes(x=mc_infant, y=mhi_2018)) + 
+  geom_point()+ 
+  geom_jitter(alpha = 0.2, color = "darkslategray") +
+  geom_smooth(method = 'lm', color = "red", linetype = "dashed") + 
+  labs(x = "Median Full-Time Price for Center-Based Infant Care(Dollars)", 
+       y = "",
+       subtitle = "Median household income (Dollars)",
+       title = "Household Income vs. Infant Care Cost in CA 2018") + 
+  scale_x_continuous(labels = label_dollar()) +
+  scale_y_continuous(labels = label_dollar())
   
   
 ```
@@ -441,7 +457,7 @@ summarize?
 
 ```{r}
 #| label: r-3-example
-
+#will use use in the final
 ```
 
 -   Example of function stops
@@ -459,11 +475,17 @@ summarize?
 
 ```{r}
 #| label: dvs-1-num
-# lab 2 question 4
+# lab 2 question 7
 ggplot(data = surveys,
        mapping = aes(x = weight, y = hindfoot_length )
        ) +
-  geom_point()
+  geom_point(alpha = 0.2) + 
+  facet_wrap(~species) + 
+  labs(x = "weight (grams) ",
+       y = "", 
+       color = "",
+       subtitle = "hindfoot_length(mm) ",
+       title = "Rodents Weight and foot length Scatterplot")
 
 ```
 
@@ -851,7 +873,7 @@ ggplot(data = surveys,
 
 ```{r}
 #| label: dvs-7-2
-#
+#lab 3 q7
 teacher_evals_clean |> 
     filter(if_any(everything(), is.na)) |> 
     distinct(teacher_id, course_id, percent_failed_cur)
@@ -865,6 +887,16 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: pe-1-one-call
+#lab 3 q8
+ 
+  teacher_evals_clean |>
+  group_by(academic_degree, sex) |>
+  summarise(
+    avg_seniority = mean(seniority),
+    min_seniority = min(seniority),
+    max_seniority = max(seniority),
+    total_instructors = n_distinct(teacher_id)
+  )
 
 ```
 
@@ -888,14 +920,14 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: pe-2-1
-
+#will use in final
 ```
 
 -   Function that operates on data frames
 
 ```{r}
 #| label: pe-2-2
-
+#will use in final
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -1036,7 +1068,7 @@ summary(species_mod)
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 My thinking has significantly changed over the course of this class. Based on the feedback and comments I have received in the past, I now strive to avoid the same mistakes in future assignments and improve my approach to similar problems. I would say that this style of doing the homework, then revising based on feedback has been pivotal in terms of my ability to understand code and write code. In terms of doing the revisons, I take pride in writing how I have learned from the expereince, and how I have grown as a coder. 
 
-For instance in lab 2 revisions for this code:
+For instance in lab 2 revisions for this code: lab2 q7
 
 ggplot(data = surveys,
        mapping = aes(x = weight, y = hindfoot_length )
