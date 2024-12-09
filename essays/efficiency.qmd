@@ -8,10 +8,36 @@ As we’ve said in the class efficiency is a pivotal component of statistical co
 
 -   What is the definition of “efficiency”?
 
+    To me, efficiency means reducing redundancy and creating code that achieves its purpose simply and effectively with fewer lines compared to code that accomplishes the same tasks using multiple lines. The code is simple to read for not only for yourself but other coders alike, is little readability and maintainability.
+
 -   What does efficiency look like in statistical computing / data science?
+
+    Efficiency in statistical computing and data science means create code that is simple and easy for others to understand. It means making sure that code is not only effective, but executes in faster than before. I remember working on a coding example in an internship, and it took a while for it to run, as a result I had to tweak the code and it made the whole data pull significantly faster than before.
 
 -   What does efficiency allow you to do?
 
+    To me efficiency saves you time and effort, by writing code that is efficient and tidy, it not only saves you time, but it helps you move on to other task. This overall makes you more productive and makes you organized and well time managed.
+
 -   Why is efficiency important?
 
+    Efficiency is important because it allows myself to maximize my time and resources, which helps me handle more tasks and produce reliable results with less code. Efficient and tidy coding not only meets course objectives but also enhances the re usability and repurposability of my work, as I experienced in a previous internship and class. This approach saves time and reduces load times, proving invaluable in both academic and professional settings.
+
 -   Where did you encounter efficiency, and what were some [“a-ha” moments](https://www.merriam-webster.com/dictionary/aha%20moment) you had about efficiency? (For the latter, tie each a-ha moment to an artifact in the portfolio.)
+
+    I encountered efficiency recently in lab 7 Q2 \
+
+    ```{r}
+    # Lab 7 Q1
+    fish |> 
+      summarise(
+        across(everything(), 
+               ~ sum(is.na(.x)), 
+               .names = "missing_{.col}"
+               )
+      )
+
+    ```
+
+    To me, efficiency means reducing redundancy and creating code that achieves its purpose simply and effectively with fewer lines compared to code that accomplishes the same tasks using multiple lines. The code is simple to read for not only for yourself but other coders alike, is little readability and maintainability.
+
+Where I used across everything, this is efficient because it applies a given operation sum(is.na(.x)) across all columns in a dataset in a vectorized manner, instead of having to do it manually for every column in the fish dataset. thus reducing the amount of code I would have written. My aha moment would probably be in lecture where across was used to Summarize multiple columns, that made me understand how we could summarize multiple columns and find things like mean or max from it. The practice and problems that came after the lecture really brought to life the efficiency of doing that instead of separately getting the mean of each column separately. Lastly a lot of lab 3 also significantly in understanding efficiency in code.

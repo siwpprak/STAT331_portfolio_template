@@ -6,16 +6,20 @@ editor: visual
 
 **Answer each of the following questions with *one sentence* including a brief explanation.**
 
-1. Finish the sentence with another student’s name: "If [Name of Student] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
+1.  Finish the sentence with another student’s name: "If \[Name of Student\] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
 
+I deserve an A because I spend a lot of time trying to revise my work as much as possible. I collaborate with others when I don’t understand a problem, and I often help others understand the challenges they face. Throughout the quarter, I have demonstrated continuous improvement by addressing the areas where I struggled. Additionally, I apply what I learn in my other classes and at my current internship, showing that I can take what I’ve learned and make it meaningful beyond this course.
 
-2. What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+2.  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
 
+The most challenging part of the class for me was working with vectors and creating complex functions, as we did in Lab 7. I found these concepts difficult because I had never really worked with vectors before, and the rules for using vectors in functions were initially hard to grasp. However, with more practice and revisions, I developed a much better understanding of how to use them effectively and incorporate them into functions and future lab.
 
-3. What was the easiest part of the class for you? Explain why.
+3.  What was the easiest part of the class for you? Explain why. The easiest parts of the class for me were the problems that required us to conduct statistical analyses, work with data sets, and create graphs. These tasks were straightforward due to my previous experience in statistics and economics classes, which I also enjoyed.
 
+4.  What part of the class surprised or interested you the most? Explain why.
 
-4. What part of the class surprised or interested you the most? Explain why.
+The part of the class that surprised me the most was the SQL syntax we used. I never realized that R had SQL syntax or needed it, but it provided a great refresher and has been very helpful in my current internship.
 
+5.  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
 
-5. Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+One piece of advice I would give to a student at the beginning of the quarter is to trust the process. Learning a new language can be very challenging at first, but revising, asking questions, and having a mindset when approaching problems really helped me learn and grow. Overall, it was very rewarding.

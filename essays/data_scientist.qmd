@@ -9,3 +9,72 @@ editor: visual
 -   Focus specifically on data science concepts and the skills we employed in learning them, not a laundry list of topics that you learned (those are in the syllabus, so I know them already).
 
 -   Focus on a small number of specific areas of growth for you that happened in STAT 331. Identify at least one artifact in your portfolio that illustrates each area of growth and explain how this artifact shows growth in the way you are describing.
+
+This quarter, I was able to define and develop key data science concepts by applying them in practice assignments, homework, and projects. Revisions and feedback played a crucial role in refining my understanding and improving my data scientist mind, allowing me to learn from others and give feedback. This process allowed me to build a strong foundation and enhance my skills as a data scientist. The concepts that helped me develop as a data scientist in and outside of class are data visualization, ggplot, tidyr, dplyr, and creating functions. Data visualization is an essential skill for a data scientist in the real world because it helps communicate complex data clearly and effectively. This is apparent in Lab 7 Q2, where I connected a data wrangling pipeline into ggplot, used custom colors with scale_fill_manual, and applied fct_recode to relabel categories for clarity. I used filters to isolate missing values, group_by and summarise to calculate group-level summaries, and mutate() to clean and reorder categorical variables, showcasing tidy and efficient practices. Lab 7 Q2 also demonstrates how I combined these techniques to create a clear and compelling stacked bar chart, breaking down missing data patterns by year, section, and trip for better communication. There are also many instances, such as challenge 7 Q 4, and a lot of lab 3, where I was able to use a bunch of dplyr functions to summarize and slice max and min to show meaningful data. Overall, I implemented many techniques data scientists use daily to create meaningful visualizations to share with key stakeholders. I look forward to applying the things I learned in this class in my future career.
+
+In Lab 7 Q2, I experienced significant growth by using creativity to design a visualization from scratch for the first time, rather than simply replicating a provided example as in earlier labs. This shows my growth as a programmer, as I had to combine new and old concepts from previous labs. I utilized dplyr and tidyr to wrangle and reshape the data, while also leveraging techniques like scale_fill_manual to apply custom colors and fct_recode to relabel categories for clarity, skills I had previously struggled to execute effectively before. Before this lab, I struggled with poor name choices and unclear graph labels, making it hard for others to understand my visualizations. This lab pushed me to think carefully about structuring the data pipeline and the visual aspects of a graph. Overall, It highlights my growth in creating my own plot, as I independently developed a tidy and effective visualization.
+
+```{r}
+# lab 7 Q2 
+fish |>
+  filter(is.na(weight)) |>
+  mutate(trip = factor(trip, levels = c("1", "2")), 
+         trip = fct_recode(trip, 
+                           `Trip 1` = "1",
+                           `Trip 2` = "2")
+         )|>
+  group_by(year, 
+           section, 
+           trip) |>
+  summarise(missing_count = n(), 
+            .groups = 'drop') |>
+  ggplot(aes(x = factor(year), 
+             y = missing_count, 
+             fill = section)) +
+  geom_bar(stat = "identity", 
+           position = "stack") +
+  facet_wrap(~ trip, ncol = 2) +
+  theme_bw(base_size = 8) +
+  labs(
+    x = "Year",
+    y = "",
+    subtitle = "Number of Missing Values",
+    fill = "Section",
+    title = "Frequency of Missing Values in 'Weight' by Year, Section, and Trip"
+  ) +
+  scale_fill_manual(values = c("Johnsrud" = "steelblue", "ScottyBrown" = "gray"))  # Adjusted color for ScottyBrown
+  
+```
+
+
+```{r}
+fish |>
+  mutate(confunc = confunc(weight, length)) |>
+  group_by(year, species) |>
+  summarize(mean_condition = mean(confunc, na.rm = TRUE), .groups = "drop") |>
+  ggplot(aes(x = year, 
+             y = mean_condition, 
+             color = species)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Blackfoot Fish Condition Index From 1989 to 2006",
+    subtitle = "Condition Index by Species",
+    x = "Year",
+    y = " Condition Index",
+    color = "Species"
+  ) +
+  scale_y_continuous(limits = c(0, 2)) +
+  theme_bw()
+```
+
+
+```{r}
+# code chunk for Q6 lab 3
+  teacher_evals_clean |>
+  summarize(
+    unique_instructors = n_distinct(teacher_id),
+    unique_courses = n_distinct(course_id)
+  )
+```
+

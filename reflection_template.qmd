@@ -45,8 +45,9 @@ military <- read_xlsx(here::here("data",
 
 ```{r}
 #| label: wd-1-txt
-#PA 5
-message_data <- read_csv("https://github.com/earobinson95/stat331-calpoly/raw/master/practice-activities/data/scrambled_message.txt")
+#checkin Week 2
+ages1 <- read_table("ages_space.txt")
+ages1
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
@@ -105,15 +106,11 @@ scale_y_continuous(breaks = seq(100, 500, by = 100),
 
 ```{r}
 #| label: wd-3-numeric
-# lab 3 Q8
+# lab 3 Q9
 teacher_evals_clean |>
-  group_by(academic_degree, sex) |>
-  summarise(
-    avg_seniority = mean(seniority),
-    min_seniority = min(seniority),
-    max_seniority = max(seniority),
-    total_instructors = n_distinct(teacher_id)
-  )
+    group_by(teacher_id, course_id) |>
+    summarize(questions_asked = n_distinct(question_no))|>
+    filter(questions_asked == 9) 
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
@@ -125,7 +122,7 @@ person1 <- person |>
   filter((address_street_name == "Northwestern Dr" & 
           address_number == max(address_number)) | 
          (address_street_name == "Franklin Ave" & 
-          str_detect(name, "Annabel"))) |> 
+          str_detect(name, "^Annabel"))) |> 
   inner_join(interview, 
             join_by(id == person_id))|>
   select(name, 
@@ -138,25 +135,11 @@ person1 <- person |>
 
 ```{r}
 #| label: wd-3-factor
-#lab 4 q3 
-ca_childcare <- ca_childcare |>
-  mutate(county_name = str_remove(county_name, " County")) |>
-  mutate(region = fct_collapse(county_name,
-                               "Superior California" = c("Butte", "Colusa", "El Dorado", "Glenn", "Lassen", "Modoc", "Nevada", "Placer", "Plumas", "Sacramento", "Shasta", "Sierra", "Siskiyou", "Sutter", "Tehama", "Yolo", "Yuba"),
-                               "North Coast" = c("Del Norte", "Humboldt", "Lake", "Mendocino", "Napa", "Sonoma", "Trinity"),
-                               "San Francisco Bay Area" = c("Alameda", "Contra Costa", "Marin", "San Francisco", "San Mateo", "Santa Clara", "Solano"),
-                               "Northern San Joaquin Valley" = c("Alpine", "Amador", "Calaveras", "Madera", "Mariposa", "Merced", "Mono", "San Joaquin", "Stanislaus", "Tuolumne"),
-                               "Central Coast" = c("Monterey", "San Benito", "San Luis Obispo", "Santa Barbara", "Santa Cruz", "Ventura"),
-                               "Southern San Joaquin Valley" = c("Fresno", "Inyo", "Kern", "Kings", "Tulare"),
-                               "Inland Empire" = c("Riverside", "San Bernardino"),
-                               "Los Angeles County" = "Los Angeles",
-                               "Orange County" = "Orange",
-                               "San Diego - Imperial" = c("Imperial", "San Diego")
-  ))
-
-
-# View the dataframe with the new 'region' column
-print(ca_childcare)
+# lab 4 q2
+ca_childcare <- childcare_costs|>
+  left_join(counties,
+            by = join_by(county_fips_code)) |>
+  filter(state_name == "California")
 
 ```
 
@@ -164,13 +147,23 @@ print(ca_childcare)
 
 ```{r}
 #| label: wd-3-date
-#lab 5 inspecting-crime-scene-report
-crime_scene_report2 <- crime_scene_report |>
-  select(date, type, city, description)|>
-  mutate(date = ymd(date))|>
-  filter(city == "SQL City",
-         type == "murder",
-         date == "2018-01-15") 
+#lab 5 got a more attention the last time so I added more lubridate functions to my code in order to filter by year, month, and date as mentioned in the interview process 
+
+person2 <- get_fit_now_check_in |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  filter(year(check_in_date) == 2018,
+         month(check_in_date) == 1,
+         day(check_in_date) == 9) |>
+  right_join(get_fit_now_member, join_by(membership_id == id)) |>
+  filter(str_detect(membership_id, "^48Z"),
+         membership_status == "gold") |>
+  left_join(person, 
+            join_by(person_id == id)) |>
+  left_join(drivers_license, 
+            join_by(license_id == id)) |>
+  filter(gender == "male",
+         str_detect(plate_number, "H42W"))
+person2
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -179,36 +172,44 @@ crime_scene_report2 <- crime_scene_report |>
 
 ```{r}
 #| label: wd-4-numeric
-# lab 3 q 6
-  teacher_evals_clean |>
-  summarize(
-    unique_instructors = n_distinct(teacher_id),
-    unique_courses = n_distinct(course_id)
-  )
+  # challenge 3 q1 
+teacher_evals_compare <- Teacher |>
+  filter(question_no == 903) |>
+  mutate(SET_level = if_else(SET_score_avg > 4, 
+                             "excellent", 
+                             "standard"
+                             ),
+         Sen_level = if_else(seniority <= 4, 
+                             "junior", 
+                             "senior"
+                             )
+         ) |>
+  select(course_id, 
+         SET_level, 
+         Sen_level
+         )
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
 
 ```{r}
 #| label: wd-4-string
-ca_childcare <- ca_childcare |>
-  mutate(county_name = str_remove(county_name, " County")) |>
-  mutate(region = fct_collapse(county_name,
-                               "Superior California" = c("Butte", "Colusa", "El Dorado", "Glenn", "Lassen", "Modoc", "Nevada", "Placer", "Plumas", "Sacramento", "Shasta", "Sierra", "Siskiyou", "Sutter", "Tehama", "Yolo", "Yuba"),
-                               "North Coast" = c("Del Norte", "Humboldt", "Lake", "Mendocino", "Napa", "Sonoma", "Trinity"),
-                               "San Francisco Bay Area" = c("Alameda", "Contra Costa", "Marin", "San Francisco", "San Mateo", "Santa Clara", "Solano"),
-                               "Northern San Joaquin Valley" = c("Alpine", "Amador", "Calaveras", "Madera", "Mariposa", "Merced", "Mono", "San Joaquin", "Stanislaus", "Tuolumne"),
-                               "Central Coast" = c("Monterey", "San Benito", "San Luis Obispo", "Santa Barbara", "Santa Cruz", "Ventura"),
-                               "Southern San Joaquin Valley" = c("Fresno", "Inyo", "Kern", "Kings", "Tulare"),
-                               "Inland Empire" = c("Riverside", "San Bernardino"),
-                               "Los Angeles County" = "Los Angeles",
-                               "Orange County" = "Orange",
-                               "San Diego - Imperial" = c("Imperial", "San Diego")
-  ))
-
+#lab 5 str_detect
+person1 <- person |>
+  filter((address_street_name == "Northwestern Dr" & 
+          address_number == max(address_number)) | 
+         (address_street_name == "Franklin Ave" & 
+          str_detect(name, "^Annabel"))) |> 
+  inner_join(interview, 
+            join_by(id == person_id))|>
+  select(name, 
+         id,
+         transcript
+         )
 ```
 
 -   factor (example must use functions from **forcats**)
+
 ```{r}
 #| label: wd-4-factor
 #lab 4 q3
@@ -236,13 +237,24 @@ print(ca_childcare)
 
 ```{r}
 #| label: wd-4-date
-#lab 5 
-crime_scene_report2 <- crime_scene_report |>
-  select(date, type, city, description)|>
-  mutate(date = ymd(date))|>
-  filter(city == "SQL City",
-         type == "murder",
-         date == "2018-01-15") 
+#lab 5 got a more attention the last time so I added more lubridate functions to my code in order to filter by year, month, and date as mentioned in the interview process 
+
+person2 <- get_fit_now_check_in |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  filter(year(check_in_date) == 2018,
+         month(check_in_date) == 1,
+         day(check_in_date) == 9) |>
+  right_join(get_fit_now_member, join_by(membership_id == id)) |>
+  filter(str_detect(membership_id, "^48Z"),
+         membership_status == "gold") |>
+  left_join(person, 
+            join_by(person_id == id)) |>
+  left_join(drivers_license, 
+            join_by(license_id == id)) |>
+  filter(gender == "male",
+         str_detect(plate_number, "H42W"))
+person2
+
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
@@ -263,20 +275,23 @@ ca_childcare <- childcare_costs|>
 
 ```{r}
 #| label: wd-5-right
-# lab 5 modified based on provided suggestions
-person2 <- get_fit_now_check_in %>%
-  mutate(check_in_date = ymd(check_in_date)) %>%
-  filter(check_in_date == "2018-01-9") %>%
+# lab 5 modified based on provided suggestions, The right join makes sure that all members from the get_fit_now_member dataset are included when joining both the get_fit_now_check_in and get_fit_now_member. This helps us combine membership details with check-in information, so that we could filter even more even if some records dont have check in data. 
+person2 <- get_fit_now_check_in |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  filter(year(check_in_date) == 2018,
+         month(check_in_date) == 1,
+         day(check_in_date) == 9) |>
   right_join(get_fit_now_member, 
              join_by(membership_id == id)) |>
   filter(str_detect(membership_id, "^48Z"),
          membership_status == "gold") |>
-  left_join(person,
+  left_join(person, 
             join_by(person_id == id)) |>
-  left_join(drivers_license,
+  left_join(drivers_license, 
             join_by(license_id == id)) |>
   filter(gender == "male",
-  str_detect(plate_number, "H42W"))
+         str_detect(plate_number, "H42W"))
+person2
 ```
 
 -   `inner_join()`
@@ -288,7 +303,7 @@ person1 <- person |>
   filter((address_street_name == "Northwestern Dr" & 
           address_number == max(address_number)) | 
          (address_street_name == "Franklin Ave" & 
-          str_detect(name, "Annabel"))) |> 
+          str_detect(name, "^Annabel"))) |> 
   inner_join(interview, 
             join_by(id == person_id))|>
   select(name, 
@@ -301,12 +316,7 @@ person1 <- person |>
 
 ```{r}
 #| label: wd-5-full
-# lab 5
-final1 <- person |>
-  full_join(interview,
-            join_by(id == person_id)) |>
-filter(id == 99716) |>
-  select(name, transcript)
+NO NEED FOR FULL JOIN anymore 
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -314,15 +324,35 @@ filter(id == 99716) |>
 -   `semi_join()`
 
 ```{r}
-#| label: wd-6-semi
-#will use use in the final
+#| label: wd-6-sem
+#lab 5 The semi join checks if Miranda Priestly from the person table has any matching records in the interview table. Was modified in order to add semi join.
+
+ 
+Finalinterview <- person |>
+  filter(name == "Miranda Priestly") |>
+  semi_join(interview,
+            join_by(id == person_id)) |>
+  select(name)
+
+Finalinterview
 ```
 
 -   `anti_join()`
 
 ```{r}
 #| label: wd-6-anti
-#will use use in the final
+#Lab 4 Q1
+#I created this scenario for an anti-join to handle childcare cost data for the year 2008. In this scenario, the financial crash of 2008 caused the data to be inconsistent compared to other years, so I needed to exclude it from my analysis.. 
+
+non_2008_years <- childcare_costs |>
+  select(study_year) |>     
+  filter(study_year == 2008)   
+
+childcare_non2008 <- childcare_costs |>
+  anti_join(non_2008_years, by = "study_year")  
+
+
+childcare_non2008
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
@@ -403,6 +433,12 @@ ca_childcare |>
 
 I've done this in the following provided assignments:
 
+From Lab 1 - 9, I was able to reduce the errors and warnings that were present, and create professional looking analysis throughout my labs
+
+Removed all the warnings from all the documents styling blue quarto style in lab 2
+
+I have used the here package consistently where we had to load packages in homework assignments
+
 **R-2: I can write well documented and tidy code.**
 
 -   Example of **ggplot2** plotting
@@ -411,10 +447,13 @@ I've done this in the following provided assignments:
 #| label: r-2-1
 #Question 16 lab 2
 ggplot(data = surveys, 
-       mapping = aes(x = weight, y = species)) +
-    geom_boxplot(  outliers = FALSE) +
+       mapping = aes(x = weight, 
+                     y = species)) +
+    geom_boxplot(outliers = FALSE) +
   geom_jitter(alpha = 0.3, color = "steelblue") + 
-  labs(x = "weight(grams)", y = "Rodent species", title = "Weight distribution in grams for the various Rodent species ") 
+  labs(x = "weight(grams)",
+       y = "Rodent species",
+       title = "Weight distribution in grams for the various Rodent species") 
 ```
 
 -   Example of **dplyr** pipeline
@@ -457,14 +496,25 @@ ggplot(ca_childcare, aes(x=mc_infant, y=mhi_2018)) +
 
 ```{r}
 #| label: r-3-example
-#will use use in the final
+#Lab 4 Q5 Slicemin makes this code resistant to change plus the filter condition and summarize
+ca_childcare |>
+  filter(study_year == 2018) |>
+  group_by(region) |>
+  summarize(median_infant_price = median(mc_infant, na.rm = TRUE)) |>
+  slice_min(median_infant_price)
 ```
 
 -   Example of function stops
 
 ```{r}
 #| label: r-3-function-stops
-#Not in this midterm
+  rescale_01 <- function(x) {
+  stopifnot(is.numeric(x), length(x) > 1)
+  min_x <- min(x, na.rm = TRUE)
+  max_x <- max(x, na.rm = TRUE)
+  return((x - min_x) / (max_x - min_x))
+}
+
 ```
 
 ## Data Visualization & Summarization
@@ -493,13 +543,16 @@ ggplot(data = surveys,
 
 ```{r}
 #| label: dvs-2-num-cat
-# lab 2 Q15 make more tidy later on
+# lab 2 Q16 make more tidy later on
 ggplot(data = surveys, 
-       mapping = aes(x = species, y = weight)) +
-    geom_boxplot( outliers = FALSE) +
+       mapping = aes(x = weight, y = species)) +
+    geom_boxplot(outliers = FALSE) +
   geom_jitter(alpha = 0.3, color = "steelblue") + 
-  labs(x = "Rodent species", y = "", subtitle = "weight(grams)", title = "Weight distribution in grams for the various Rodent species ") + 
-  theme(axis.text.x = element_text(angle = 45))
+  labs(x = "Weight(Grams)",
+       y = "", 
+       title = "Weight distribution in grams for the various Rodent species ", 
+       subtitle = "Rodent Species") 
+  
 ```
 
 -   at least two categorical variables
@@ -598,63 +651,75 @@ ggplot(ca_childcare, aes(x=mc_infant, y=mhi_2018)) +
 
 ```{r}
 #| label: dvs-2-2
-#lab 2 question 15
-ggplot(data = surveys, 
-       mapping = aes(x = species, y = weight)) +
-    geom_boxplot( outliers = FALSE) +
-  geom_jitter(alpha = 0.3, color = "steelblue") + 
-  labs(x = "Rodent species", y = "",subtitle = "weight(grams)", title = "Weight distribution in grams for the various Rodent species ") + 
-  theme(axis.text.x = element_text(angle = 45))
+#lab4 q7
+reg_mod1 <- lm(mc_infant ~ mhi_2018, data = ca_childcare)
+
+ggplot(ca_childcare, aes(x=mc_infant, y=mhi_2018)) + 
+  geom_point() + 
+  geom_jitter() +
+  geom_smooth(method = 'lm') + 
+  labs(x = "Median Full-Time Price for Center-Based Infant Care(Dollars)", 
+       y = "",
+       subtitle = "Median household income (Dollars)",
+       title = "Household Income vs. Infant Care Cost in CA 2018") + 
+  scale_x_continuous(labels = label_dollar()) +
+  scale_y_continuous(labels = label_dollar())
+
 ```
 
 -   I can reorder my legend to align with the colors in my plot
 
 ```{r}
 #| label: dvs-2-3
-# lab 4 Q6 modified based on comments will sumbit to revisons soon
+# Lab 4 Q6 modified based on comment in midterm portfolio, used fct_reorder2 to modify instead of hand
 ca_childcare |>
   select(mc_infant,
          mc_toddler, 
          mc_preschool,
          region, 
          study_year) |>
- pivot_longer(cols = mc_infant:mc_preschool,
-               names_to = "age_group",   
-               values_to = "cost")  |>
+  pivot_longer(
+    cols = mc_infant:mc_preschool,
+    names_to = "age_group",
+    values_to = "cost") |>
   mutate(age_group = fct_recode(.f = age_group,
-                            "Infant" = "mc_infant",
-                            "Toddler" = "mc_toddler",
-                            "Preschool" = "mc_preschool"),
-  age_group = fct_relevel(age_group, 
-                          "Infant", 
-                          "Toddler", 
-                          "Preschool"), 
-  region = fct_relevel(region, "San Francisco Bay Area", "Orange County", "Los Angeles County",
-                              "Northern San Joaquin Valley", "Central Coast", "Inland Empire",
-                              "Superior California", "Southern San Joaquin Valley", "San Diego-Imperial",
-                              "North Coast"))|>
-  
+      "Infant" = "mc_infant",
+      "Toddler" = "mc_toddler",
+      "Preschool" = "mc_preschool"
+    ),
+    age_group = fct_relevel(age_group,
+                            "Infant", 
+                            "Toddler", 
+                            "Preschool")) |>
   ggplot(mapping = aes(x = study_year,
-                       y = cost,
-                       color = region))+ 
-  geom_point()+ 
+    y = cost,
+    color = fct_reorder2(
+      .f = region,
+      .x = study_year,
+      .y = cost) 
+  )) + 
+  geom_point() + 
   facet_wrap(~age_group) + 
   geom_smooth(method = "loess") +
- scale_x_continuous(breaks = seq(2008, 2018, by = 2), 
-                     limits = c(2008, 2018)) +
-  
-scale_y_continuous(breaks = seq(100, 500, by = 100), 
-                     limits = c(100, 500)) +
-  labs(x = "Study Year", y = "", subtitle = "Weekly Median Price for Center-Based Childcare ($)", color = "California Region" ) +
-  scale_color_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(10)) + 
-  theme(
-    text = element_text(size = 12),
-    aspect.ratio = 1,
-    legend.position = "right",
-    legend.title = element_text(size = 10),
-    legend.text = element_text(size = 15)
-  ) + 
+  scale_x_continuous(breaks = seq(2008, 2018, by = 2),
+                     limits = c(2008, 2018)
+  ) +
+  scale_y_continuous(breaks = seq(100, 500, by = 100),
+                     limits = c(100, 500)
+  ) +
+  labs(x = "Study Year",
+       y = "",
+       subtitle = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region"
+  ) +
+  scale_color_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(10)) +
+  theme( text = element_text(size = 12),
+         aspect.ratio = 1,
+         legend.position = "right",
+         legend.title = element_text(size = 10),
+         legend.text = element_text(size = 15)) +
   theme_bw()
+
 ```
 
 **DVS-3: I show creativity in my visualizations**
@@ -719,21 +784,20 @@ ggplot(data = surveys,
                      x = weight,
                      color = genus)) +
   geom_boxplot() +
-  scale_color_manual(values = cdPalette_grey) + 
-  annotate("text", y = 14, x = 250, label = "Onychomys") +
-  annotate("text", y = 13, x = 250, label = "Dipodomys") + 
-  annotate("text", y = 12, x = 250, label = "Chaetodipus") + 
-  annotate("text", y = 11, x = 250, label = "Dipodomys") + 
-  annotate("text", y = 10, x = 250, label = "Dipodomys") + 
-  annotate("text", y = 9, x = 250, label = "Reithrodontomys") +
-  annotate("text", y = 8, x = 250, label = "Peromyscus") +
-  annotate("text", y = 7, x = 250, label = "Onychomys") +
-  annotate("text", y = 6, x = 250, label = "Sigmodon") + 
-  annotate("text", y = 5, x = 250, label = "Reithrodontomys") + 
-  annotate("text", y = 4, x = 250, label = "Perognathus") + 
-  annotate("text", y = 3, x = 250, label = "Peromyscus") + 
-  annotate("text", y = 2, x = 250, label = "Chaetodipus") +
-   annotate("text", y = 1, x = 250, label = "Neotoma") + 
+  annotate("text", y = 1:14, x = 250, label = c("Neomota",
+                                                "Chaetodipus",
+                                                "Peromyscus",
+                                                "Perognathus",
+                                                "Reithrodontomys",
+                                                "Sigmodon",
+                                                "Onychomys",
+                                                "Peromyscus",
+                                                "Reithrodontomys",
+                                                "Dipodomys",
+                                                "Dipodomys",
+                                                "Chaetodipus",
+                                                "Dipodomys",
+                                                "Onychromys"))+ 
   theme(legend.position = "none") +
   labs(title = "Rodent Weight by Species",
        x = "Weight (g)",
@@ -745,19 +809,34 @@ ggplot(data = surveys,
 
 ```{r}
 #| label: dvs-3-3
-# lab 4 q7
-reg_mod1 <- lm(mc_infant ~ mhi_2018, data = ca_childcare)
-
-ggplot(ca_childcare, aes(x=mc_infant, y=mhi_2018)) + 
-  geom_point()+ 
-  geom_jitter(alpha = 0.2, color = "darkslategray") +
-  geom_smooth(method = 'lm', color = "red", linetype = "dashed") + 
-  labs(x = "Median Full-Time Price for Center-Based Infant Care(Dollars)", 
-       y = "",
-       subtitle = "Median household income (Dollars)",
-       title = "Household Income vs. Infant Care Cost in CA 2018") + 
-  scale_x_continuous(labels = label_dollar()) +
-  scale_y_continuous(labels = label_dollar())
+# lab 7 Q2 
+fish |>
+  filter(is.na(weight)) |>
+  mutate(trip = factor(trip, levels = c("1", "2")), 
+         trip = fct_recode(trip, 
+                           `Trip 1` = "1",
+                           `Trip 2` = "2")
+         )|>
+  group_by(year, 
+           section, 
+           trip) |>
+  summarise(missing_count = n(), 
+            .groups = 'drop') |>
+  ggplot(aes(x = factor(year), 
+             y = missing_count, 
+             fill = section)) +
+  geom_bar(stat = "identity", 
+           position = "stack") +
+  facet_wrap(~ trip, ncol = 2) +
+  theme_bw(base_size = 8) +
+  labs(
+    x = "Year",
+    y = "",
+    subtitle = "Number of Missing Values",
+    fill = "Section",
+    title = "Frequency of Missing Values in 'Weight' by Year, Section, and Trip"
+  ) +
+  scale_fill_manual(values = c("Johnsrud" = "steelblue", "ScottyBrown" = "gray"))  # Adjusted color for ScottyBrown
   
 ```
 
@@ -779,7 +858,14 @@ ggplot(ca_childcare, aes(x=mc_infant, y=mhi_2018)) +
 
 ```{r}
 #| label: dvs-4-across
-#will use in the final
+# Lab 7 Q1
+fish |> 
+  summarise(
+    across(everything(), 
+           ~ sum(is.na(.x)), 
+           .names = "missing_{.col}"
+           )
+  )
 ```
 
 **DVS-5: I can find summaries of variables across multiple groups.**
@@ -860,12 +946,18 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-7-1
-# challenge 2 Medium 
-ggplot(data = surveys, 
-      aes(x = weight, y = species, fill = species)) +
-  geom_density_ridges() + 
-  labs(x = "weight(Grams)", y = "Species of rodent", title =  "Weight distribution in grams for the various Rodent species ") + 
-  theme(legend.position = "none") 
+#lab 8 Q2 modified based on suggestions to make more detailed
+map_chr(surveys, typeof) |>
+  bind_rows() |>
+  kable(format = "html", 
+        caption = "Demographic Table: Data Types of Survey Columns") |>
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    position = "center",
+    font_size = 15
+  )
+
+#https://www.rdocumentation.org/packages/knitr/versions/1.48/topics/kable 
 
 ```
 
@@ -873,10 +965,40 @@ ggplot(data = surveys,
 
 ```{r}
 #| label: dvs-7-2
-#lab 3 q7
-teacher_evals_clean |> 
-    filter(if_any(everything(), is.na)) |> 
-    distinct(teacher_id, course_id, percent_failed_cur)
+# challenge 9 modified based on suggestions to make more detailed
+table1 <- results |>
+  enframe(name = "simulation_number", value = "ncorrect") |>
+  count(ncorrect) |>
+  mutate(proportion = n / sum(n)) |>
+  select(ncorrect, proportion) |>
+  pivot_wider(names_from = ncorrect, values_from = proportion)
+
+total_simulations <- sum(results)
+
+table1_gt <- table1 |>
+  gt() |>
+  tab_header(
+    title = "Proportion of Simulations Where Babies Were Assigned to Their Correct Parents",
+    subtitle = "An analysis of how often babies were correctly matched to their parents across simulations."
+  ) |>
+  fmt_percent(
+    columns = everything(), 
+    decimals = 2           
+  ) |>
+  tab_source_note(
+    source_note = paste("Based on a total of", total_simulations, "simulations.") 
+  ) |>
+  tab_options(
+    table.font.size = 14,           
+    table.font.names = "Arial",     
+    heading.title.font.size = 16,  
+    heading.title.font.weight = "bold" 
+  )
+
+#https://gt.rstudio.com/index.html 
+#https://gt.rstudio.com/reference/tab_source_note.html
+#https://gt.rstudio.com/reference/tab_options.html
+
 ```
 
 ## Program Efficiency
@@ -904,14 +1026,26 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: pe-1-across
-# will use this in final 
+#Lab 7 Q1
+fish |> 
+  summarise(
+    across(everything(), 
+           ~ sum(is.na(.x)), 
+           .names = "missing_{.col}"
+           )
+  )
 ```
 
 -   `map()` functions
 
 ```{r}
 #| label: pe-1-map-1
-#not in this midterm
+#lab 8 Q4
+ fish |>
+  map_int(~ sum(is.na(.))) |> 
+  bind_rows() |>
+  kable(format = "html") |>
+  kable_styling()
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -920,14 +1054,28 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: pe-2-1
-#will use in final
+#Lab 7 Q4 
+  rescale_01 <- function(x) {
+  stopifnot(is.numeric(x), length(x) > 1)
+  min_x <- min(x, na.rm = TRUE)
+  max_x <- max(x, na.rm = TRUE)
+  return((x - min_x) / (max_x - min_x))
+}
 ```
 
 -   Function that operates on data frames
 
 ```{r}
 #| label: pe-2-2
-#will use in final
+#lab 7 question 8 modified based on suggestion given to add condition to check if is.dataframe
+rescale_column <- function(data, vec) {
+    stopifnot(is.data.frame(data))
+  
+  data |> 
+    mutate(across({{ vec }}, 
+                  ~ rescale_01(.x), 
+                  .names = "{.col}_scaled"))
+}
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -936,14 +1084,26 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: pe-3-across
-#NOT IN MIDTERM 1 / will use this in final 
+#Lab 7 Question 1
+fish |> 
+  summarise(
+    across(everything(), 
+           ~ sum(is.na(.x)), 
+           .names = "missing_{.col}"
+           )
+  )
 ```
 
 -   `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.)
 
 ```{r}
 #| label: pe-3-map-1
-#NOT IN MIDTERM 1
+#lab 9 Q4
+simulate_means <- function(n, df){
+  map_dbl(.x = 1:n, 
+          .f = ~rchisq(n = 100, df = df) %>% mean()
+          )
+}
 
 ```
 
@@ -951,7 +1111,12 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: pe-3-map-2
-#NOT IN MIDTERM 1
+#lab 9 q6 
+all_simulations <- grid |> 
+  mutate(simulated_means = pmap(.l = list(n = n, df = df), 
+                                .f = simulate_means)
+         ) |> 
+  unnest(simulated_means) 
 
 ```
 
@@ -962,15 +1127,9 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-4-1
 #lab 3 Q7
- 
-  teacher_evals_clean |>
-  group_by(academic_degree, sex) |>
-  summarise(
-    avg_seniority = mean(seniority),
-    min_seniority = min(seniority),
-    max_seniority = max(seniority),
-    total_instructors = n_distinct(teacher_id)
-  )
+ teacher_evals_clean |> 
+    filter(if_any(.cols = everything(), .fns = is.na)) |> 
+    distinct(teacher_id, course_id, percent_failed_cur)
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
@@ -1023,7 +1182,7 @@ scale_y_continuous(breaks = seq(100, 500, by = 100),
   theme_bw()
 ```
 
-## Data Simulation & Statisical Models
+## Data Simulation & Statistical Models
 
 **DSSM-1: I can simulate data from a *variety* of probability models.**
 
@@ -1031,15 +1190,28 @@ scale_y_continuous(breaks = seq(100, 500, by = 100),
 
 ```{r}
 #| label: dsm-1-1
-NOT APPLICABLE FOR THE MIDTERM 
+#Lab 9 Q 1 
+randomBabies <- function(nBabies) {
+  parents <- 1:nBabies
+    babies <- sample(1:nBabies)
+    sum(parents == babies)
+}
+
+results <- map_int(.x = 1:10000,
+                   .f = ~ randomBabies(nBabies = 4)
+                   )
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-1-2
-NOT APPLICABLE FOR THE MIDTERM 
-
+#lab 9 Q4
+simulate_means <- function(n, df){
+  map_dbl(.x = 1:n, 
+          .f = ~rchisq(n = 100, df = df) %>% mean()
+          )
+}
 ```
 
 **DSSM-2: I can conduct common statistical analyses in R.**
@@ -1057,6 +1229,7 @@ summary(reg_mod1)
 
 ```{r}
 #| label: dsm-2-2
+#lab 2 Question 17
 species_mod <- aov(weight ~ species, data = surveys)
 
 summary(species_mod)
@@ -1066,53 +1239,31 @@ summary(species_mod)
 ## Revising My Thinking
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
-My thinking has significantly changed over the course of this class. Based on the feedback and comments I have received in the past, I now strive to avoid the same mistakes in future assignments and improve my approach to similar problems. I would say that this style of doing the homework, then revising based on feedback has been pivotal in terms of my ability to understand code and write code. In terms of doing the revisons, I take pride in writing how I have learned from the expereince, and how I have grown as a coder. 
+
+My thinking has significantly changed over the course of this class. Based on the feedback and comments I have received in the past, I now strive to avoid the same mistakes in future assignments and improve my approach to similar problems. I would say that this style of doing the homework, then revising based on feedback has been pivotal in terms of my ability to understand code and write code. In terms of doing the revisons, I take pride in writing how I have learned from the expereince, and how I have grown as a coder.
 
 For instance in lab 2 revisions for this code: lab2 q7
 
-ggplot(data = surveys,
-       mapping = aes(x = weight, y = hindfoot_length )
-       ) +
-  geom_point(alpha = 0.2) + 
-  facet_wrap(~species) + 
-  labs(x = "weight (grams) ",
-       y = "", 
-       color = "",
-       subtitle = "hindfoot_length(mm) ",
-       title = "Rodents Weight and foot length Scatterplot")
-       
+ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length ) ) + geom_point(alpha = 0.2) + facet_wrap(\~species) + labs(x = "weight (grams) ", y = "", color = "", subtitle = "hindfoot_length(mm) ", title = "Rodents Weight and foot length Scatterplot")
+
 and my revisons::
 
 Revisons: Revised the code to include the unit of measurements such as “weight (grams)” , and “hindfoot_length(mm)”
 
 Revison notes: I originally thought it was fine to just have “weight” and ” hindfoot_length” by itself and without the unit of measurement. It’s apparent to me now, that an outsider reading this would not understand the data like me, hence showing the importance of including the unit of measurement in the axis. As a result of this, I will remember to always put the unit of measurements in the axis because not everyone know the data.
 
-This demonstrates my ability to reflect deeply on the importance of humility and how I can learn from this mistake.  I also understand why this change was necessary. For example, I mentioned, "It's evident to me now that an outsider reading this would not interpret the data as I do."
-
-
+This demonstrates my ability to reflect deeply on the importance of humility and how I can learn from this mistake. I also understand why this change was necessary. For example, I mentioned, "It's evident to me now that an outsider reading this would not interpret the data as I do."
 
 <!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
-
 
 ## Extending My Thinking
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
 
-Throughout this course, I can confidently say that I have significantly expanded my thinking, particularly through the revision process. This allows me to assess my code and identify my mistakes. Whether I seek help from a peer who has a better understanding of the problem or research useful techniques and functions based on feedback, I approach each challenge with the goal not only of correcting my code but also of learning from my errors and discovering new methods for tackling problems. For instance, I was able to address issues in Lab 4 where I had previously struggled, and I modified my code based on the feedback I received. In terms of my progression, I have grown both as a coder and as an individual. This is my first experience using this programming language, and it feels surreal to see how I can apply R code in other statistics classes here at Cal Poly. This has improved my understanding of assignments in my statistics class, allowing me to feel more confident in approaching them. In contrast, when I didn't know R in previous statistics classes, I found it challenging to understand both the assignments and the coding aspects. Lastly, it’s fascinating to see how elements of the challenge problems I attempted have appeared in future problems, such as Lab 4, Question 6, and the color brewer function. Overall, I believe I have been doing a great job with my revisions, which have helped me grow as a coder and expand my skills beyond the classroom. My internship has also provided insight into how concepts like tidiness, efficiency, and various aspects of R apply to the code I encounter, especially with joins. 
-## Peer Support & Collaboration
+Throughout this course, I can confidently say that I have significantly expanded my thinking, particularly through the revision process. This allows me to assess my code and identify my mistakes. Whether I seek help from a peer who has a better understanding of the problem or research useful techniques and functions based on feedback, I approach each challenge with the goal not only of correcting my code but also of learning from my errors and discovering new methods for tackling problems. For instance, I was able to address issues in Lab 4 where I had previously struggled, and I modified my code based on the feedback I received. In terms of my progression, I have grown both as a coder and as an individual. This is my first experience using this programming language, and it feels surreal to see how I can apply R code in other statistics classes here at Cal Poly. This has improved my understanding of assignments in my statistics class, allowing me to feel more confident in approaching them. In contrast, when I didn't know R in previous statistics classes, I found it challenging to understand both the assignments and the coding aspects. Lastly, it’s fascinating to see how elements of the challenge problems I attempted have appeared in future problems, such as Lab 4, Question 6, and the color brewer function. Overall, I believe I have been doing a great job with my revisions, which have helped me grow as a coder and expand my skills beyond the classroom. My internship has also provided insight into how concepts like tidiness, efficiency, and various aspects of R apply to the code I encounter, especially with joins. \## Peer Support & Collaboration
 
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
+
 "Your code is very tidy and efficient for the most part, and you achieved and answered most of the questions. Regarding my suggestions for your code, you could make it even more efficient and tidy by adding a new line after your left joins. I saw frequently in your code where, after the left_join, you failed to make a new line. Additionally, on question 7, you added too many spaces in the Select function, which makes the code less tidy. Lastly, Question 2 isn't as efficient as it could be, as too many functions are being called, but it does get the job done. Question 2 could be done much simpler, combining all the functions you made into one operation. Overall, Great job with the code, it was very tidy and efficient for the most part, but by cleaning it up a bit, the code will be amazing!!"
 
-This was a feedback that I was proud of because I was able to point out various points where I though the code tidiness and efficiency could be improved upon. I suggested things like adding new lines after joins, reducing extra spaces, and simplifying functions to improve code efficiency. I am proud of this review because it shows my attention to details and my thinking process of how to improve the code. I am also very proud of this code because I felt like I made an impact on someone's code and helped them make their code cleaner and more efficient. To me all the code reviews feel rewarding because I know I am helping my peers see something they don't see and indirectly making their code better now and in the future. 
-<!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
-I’ve grown a lot as a collaborator through the practice activities in class. First of all, when assigned a new partner, It takes me some time to adjust and understand their style, but once I do, I adapt my approach to work effectively with them. For example, I have had a fellow partner who wouldn't speak up or talk as much, but by understanding their style I was able to understand their preferences and communicate in a way that made them feel comfortable and collaborate effectively. As a result, we were able to work well together and tackle the PA assignments. This experience has helped me grow as a collaborator by teaching me to adapt to different styles and needs. Also on the PA assignments I have grown within the roles assigned to me in the PA assignments, as both a developer and a coder. As a developer, I type what the Coder directs. As the Coder, I guide the Developer, and use the handouts to instruct my peer. I would say that Over time my instructions have became clearer and concise compared to where I was in the beginning. Overall, I have grown to trust the process and Communicate more efficiently over time. 
-
-
-
-
-
-
-
-
-
+This was a feedback that I was proud of because I was able to point out various points where I though the code tidiness and efficiency could be improved upon. I suggested things like adding new lines after joins, reducing extra spaces, and simplifying functions to improve code efficiency. I am proud of this review because it shows my attention to details and my thinking process of how to improve the code. I am also very proud of this code because I felt like I made an impact on someone's code and helped them make their code cleaner and more efficient. To me all the code reviews feel rewarding because I know I am helping my peers see something they don't see and indirectly making their code better now and in the future. <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   --> I’ve grown a lot as a collaborator through the practice activities in class. First of all, when assigned a new partner, It takes me some time to adjust and understand their style, but once I do, I adapt my approach to work effectively with them. For example, I have had a fellow partner who wouldn't speak up or talk as much, but by understanding their style I was able to understand their preferences and communicate in a way that made them feel comfortable and collaborate effectively. As a result, we were able to work well together and tackle the PA assignments. This experience has helped me grow as a collaborator by teaching me to adapt to different styles and needs. Also on the PA assignments I have grown within the roles assigned to me in the PA assignments, as both a developer and a coder. As a developer, I type what the Coder directs. As the Coder, I guide the Developer, and use the handouts to instruct my peer. I would say that Over time my instructions have became clearer and concise compared to where I was in the beginning. Overall, I have grown to trust the process and Communicate more efficiently over time.
