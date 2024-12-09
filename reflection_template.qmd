@@ -54,7 +54,7 @@ ages1
 
 ```{r}
 #| label: wd-2
-#lab 4 Q6 modified based on comments will sumbit to revisons soon
+#lab 4 Q6 
 ca_childcare |>
   select(mc_infant,
          mc_toddler, 
