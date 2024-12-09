@@ -342,7 +342,7 @@ Finalinterview
 ```{r}
 #| label: wd-6-anti
 #Lab 4 Q1
-#I created this scenario for an anti-join to handle childcare cost data for the year 2008. In this scenario, the financial crash of 2008 caused the data to be inconsistent compared to other years, so I needed to exclude it from my analysis.. 
+#I created this scenario for an anti-join to handle childcare cost data for the year 2008. In this scenario, the financial crash of 2008 caused the data to be inconsistent compared to other years, so I needed to exclude it from my analysis. 
 
 non_2008_years <- childcare_costs |>
   select(study_year) |>     
