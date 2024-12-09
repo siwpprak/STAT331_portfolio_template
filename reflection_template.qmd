@@ -361,7 +361,7 @@ childcare_non2008
 
 ```{r}
 #| label: wd-7-long
-# lab 4 Q6 modified based on comments will sumbit to revisons soon
+# lab 4 Q6 
 ca_childcare |>
   select(mc_infant,
          mc_toddler, 
@@ -579,7 +579,7 @@ ggplot(data = teacher_evals_compare,
 
 ```{r}
 #| label: dvs-2-date
-# lab 4 Q6 modified based on comments will sumbit to revisons soon
+# lab 4 Q6
 ca_childcare |>
   select(mc_infant,
          mc_toddler, 
